@@ -21,6 +21,12 @@ body {
     background: rgba(0,0,0,.35);
 }
 
+.schedule-subscribe {
+    width: min(100%, 832px);
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .schedule-subscribe-title {
     font-size: 1.4rem;
     margin-bottom: 12px;
@@ -240,6 +246,12 @@ body {
 }
 
 @media (max-width: 700px), (hover: none) {
+    .schedule-subscribe {
+        width: auto;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
     .schedule-subscribe-buttons {
         flex-direction: column;
         align-items: flex-start;

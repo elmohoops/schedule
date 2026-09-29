@@ -142,6 +142,22 @@ function groupItemsByDay(items) {
     return dayGroups;
 }
 
+function bindPaginationAction(button, action) {
+    // iOS Safari can occasionally consume a synthesized click after the
+    // pagination DOM is replaced. Handle the native touch end directly, and
+    // prevent the follow-up compatibility click from firing a second action.
+    button.addEventListener("touchend", (event) => {
+        if (button.disabled)
+            return;
+
+        event.preventDefault();
+        action();
+    }, { passive: false });
+
+    // Mouse/trackpad/keyboard activation continues to use the normal click.
+    button.addEventListener("click", action);
+}
+
 function renderPagination(container, dayGroups) {
     // getCurrentPage() already built the authoritative page set. Rebuild only
     // as a defensive fallback if pagination is rendered independently.
@@ -164,12 +180,12 @@ function renderPagination(container, dayGroups) {
     first.textContent = "«";
     first.setAttribute("aria-label", "First page");
     first.title = "First page";
-    first.addEventListener("click", firstPage);
+    bindPaginationAction(first, firstPage);
     first.disabled = currentPage === 0;
 
     const previous = document.createElement("button");
     previous.textContent = "Prev";
-    previous.addEventListener("click", previousPage);
+    bindPaginationAction(previous, previousPage);
     previous.disabled = currentPage === 0;
 
     const label = document.createElement("span");
@@ -178,14 +194,14 @@ function renderPagination(container, dayGroups) {
 
     const next = document.createElement("button");
     next.textContent = "Next";
-    next.addEventListener("click", nextPage);
+    bindPaginationAction(next, nextPage);
     next.disabled = currentPage === totalPages - 1;
 
     const last = document.createElement("button");
     last.textContent = "»";
     last.setAttribute("aria-label", "Last page");
     last.title = "Last page";
-    last.addEventListener("click", lastPage);
+    bindPaginationAction(last, lastPage);
     last.disabled = currentPage === totalPages - 1;
 
     content.appendChild(first);
