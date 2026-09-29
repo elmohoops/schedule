@@ -15,6 +15,12 @@
     background: rgba(0,0,0,.35);
 }
 
+.schedule-subscribe {
+    width: min(100%, 832px);
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .schedule-subscribe-title {
     font-size: 1.4rem;
     margin-bottom: 12px;
@@ -43,20 +49,45 @@
         box-shadow .15s ease;
 }
 
-.schedule-subscribe-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,.12);
-    border-color: #9E1B32;
+
+/*
+ * Desktop date-group layout
+ *
+ * Each date is treated as one flexible unit. A date with one event stays
+ * compact, allowing two or more dates to share a row when space permits.
+ * Dates with multiple events naturally grow wider because their event cards
+ * remain together. The mobile override below restores the existing stacked
+ * layout.
+ */
+.schedule-day-groups {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 20px;
+    width: min(100%, 832px);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.schedule-day {
+    flex: 0 0 auto;
+    width: fit-content;
+    max-width: 100%;
+    padding: 14px;
+    border: 1px solid #d8d8d8;
+    border-radius: 10px;
+    background: rgba(255, 248, 230, .82);
+    color: #7A1F2B;
+}
+
+.schedule-date {
+    margin: 0 0 12px;
 }
 
 .schedule-day-games {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 20px;
-}
-
-.schedule-day {
-    color: #7A1F2B;
 }
 
 .schedule-card {
@@ -71,11 +102,6 @@
     transition: transform .15s ease, box-shadow .15s ease;
 }
 
-.schedule-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,.12);
-    border-color: #9E1B32;
-}
 
 .schedule-card::after {
     content: "📅";
@@ -88,9 +114,6 @@
     pointer-events: none;
 }
 
-.schedule-card:hover::after {
-    opacity: 1;
-}
 
 .schedule-stripe {
     height: 12px;
@@ -132,9 +155,6 @@
     display: inline-block;
 }
 
-.schedule-location:hover {
-    color: #0000FF;
-}
 
 .schedule-description {
     margin-top: 8px;
@@ -152,10 +172,6 @@
     margin: 20px auto 36px;
 }
 
-.schedule-pagination:hover {
-    box-shadow: 0 4px 10px rgba(0,0,0,.12);
-    border-color: #9E1B32;
-}
 
 .schedule-pagination-content {
     display: flex;
@@ -175,9 +191,6 @@
     transition: color .15s ease;
 }
 
-.schedule-pagination button:hover {
-    color: #9E1B32;
-}
 
 .schedule-pagination button:disabled {
     color: #cfcfcf;
@@ -192,11 +205,77 @@
     color: #444;
 }
 
-@media (hover: none) {
+
+/* Hover effects are desktop-only. On touch devices, persistent simulated
+ * hover can consume the first tap before the click action fires. */
+@media (hover: hover) and (pointer: fine) {
+    .schedule-subscribe-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,.12);
+        border-color: #9E1B32;
+    }
+
+    .schedule-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,.12);
+        border-color: #9E1B32;
+    }
+
+    .schedule-card:hover::after {
+        opacity: 1;
+    }
+
+    .schedule-location:hover {
+        color: #0000FF;
+    }
+
+    .schedule-pagination:hover {
+        box-shadow: 0 4px 10px rgba(0,0,0,.12);
+        border-color: #9E1B32;
+    }
+
+    .schedule-pagination button:hover {
+        color: #9E1B32;
+    }
+}
+
+@media (max-width: 700px), (hover: none) {
+    .schedule-subscribe {
+        width: auto;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
     .schedule-subscribe-buttons {
         flex-direction: column;
         align-items: flex-start;
     }
+
+    /* Preserve the existing mobile schedule layout. */
+    .schedule-day-groups {
+        display: block;
+        width: auto;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .schedule-day {
+        width: auto;
+        max-width: none;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+    }
+
+    .schedule-date {
+        margin: .83em 0;
+    }
+
+    .schedule-day-games {
+        flex-wrap: wrap;
+    }
+
     .schedule-card {
         min-width: 0;
         width: 100%;
@@ -204,3 +283,14 @@
     }
 }
 
+
+/* Desktop pagination packs date groups into a 3-column x 3-row page. */
+@media (min-width: 701px) and (hover: hover) {
+    .schedule-day-many-events {
+        width: 100%;
+    }
+
+    .schedule-day-many-events .schedule-day-games {
+        flex-wrap: wrap;
+    }
+}

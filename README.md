@@ -49,7 +49,8 @@ Repositories:
 
 -   `schedule` - Game and event schedule
 -   `rosters` - Team rosters and coaching staffs
--   `board` - Booster Board directory
+-   `boosters` - Booster Board directory
+-   `sponsors` - Sponsor directory/carousel
 
 Each application is hosted using GitHub Pages.
 
@@ -71,11 +72,15 @@ Schedule information is maintained in Google Calendar.
 The application supports separate calendars for the El Modena basketball
 teams and combines their events into one chronological schedule.
 
-Current team configuration includes:
+Current enabled calendar configuration includes:
 
 -   Varsity
--   Junior Varsity
--   Freshman
+-   JV
+-   Frosh/Soph
+-   Team Events
+
+A separate Freshman calendar remains configured in `js/config.js` but is
+currently disabled.
 
 Team calendars can be enabled or disabled in `js/config.js`.
 
@@ -178,12 +183,52 @@ The application currently supports:
 -   Team filtering
 -   Event descriptions
 -   Clickable locations
--   Pagination by day groups
+-   Adaptive desktop pagination using three visual rows
+-   Multiple date groups sharing a desktop row when space permits
+-   Equal-height date-group containers within each desktop row
 -   Previous/Next navigation
 -   First/Last navigation
+-   Touch-friendly delegated pagination controls
 -   Calendar subscription links
 -   Responsive desktop/mobile layout
 -   Wix iframe embedding
+
+## Responsive Schedule Layout
+
+The desktop and mobile schedule layouts intentionally behave differently.
+
+### Desktop
+
+The schedule is paginated into three visual rows per page. Date groups
+are packed into those rows based on the number of event cards they
+contain.
+
+Several dates containing one event each may share a row, while a date
+containing several events may occupy more of the available row width.
+This keeps sparse portions of the schedule compact while still keeping
+all events for a date together.
+
+Date groups within the same visual row stretch to the height of the
+tallest date group in that row. The event cards themselves keep their
+natural content-driven height. This allows optional event text to expand
+a card without creating a jagged row of date-group backgrounds.
+
+The desktop date-group area and Subscribe section are centered within the
+application so the layout remains balanced when a row is not completely
+filled.
+
+### Mobile
+
+The mobile layout uses a single-column chronological schedule. Each date
+is followed by all events scheduled for that date.
+
+Do not apply the desktop date-group card layout to mobile. The mobile
+presentation is intentionally simpler and should be tested directly on
+a mobile device rather than relying only on Wix's mobile preview.
+
+Pagination controls use delegated pointer events so dynamically rendered
+Previous/Next and First/Last buttons continue to respond to a single tap
+after repeated page changes.
 
 ## Making Routine Schedule Changes
 
@@ -202,13 +247,17 @@ behavior, configuration, or functionality of the schedule application.
 Recommended workflow:
 
 1.  Make the change in the development version.
-2.  Test the DEV version in a browser and in Wix if appropriate.
-3.  Verify desktop and mobile behavior.
-4.  Promote the tested files to the production/root version.
-5.  Commit the production changes to `main`.
-6.  GitHub Pages automatically redeploys the site.
-7.  Verify the production GitHub Pages URL.
-8.  Verify the embedded schedule on ELMOHoops.org.
+2.  Test the DEV version directly in a desktop browser and in Wix if
+    appropriate.
+3.  Test mobile behavior directly on a phone. Wix mobile preview may not
+    reproduce touch behavior accurately.
+4.  Verify pagination, date grouping, and responsive behavior before
+    promotion.
+5.  Promote the tested files to the production/root version.
+6.  Commit the production changes to `main`.
+7.  GitHub Pages automatically redeploys the site.
+8.  Verify the production GitHub Pages URL.
+9.  Verify the embedded schedule on ELMOHoops.org.
 
 For significant stable releases, create a Git tag/release.
 
@@ -260,13 +309,26 @@ Roster and coaching information is maintained in Google Sheets.
 
 Repository:
 
-https://github.com/elmohoops/board
+https://github.com/elmohoops/boosters
 
 GitHub Pages:
 
-https://elmohoops.github.io/board/
+https://elmohoops.github.io/boosters/
 
 Booster Board information is maintained in Google Sheets.
+
+### Sponsors
+
+Repository:
+
+https://github.com/elmohoops/sponsors
+
+GitHub Pages:
+
+https://elmohoops.github.io/sponsors/
+
+Sponsor information and display configuration are maintained in Google
+Sheets.
 
 ## Maintenance Philosophy
 
