@@ -7,6 +7,20 @@ let currentPage = 0;
 let totalPages = 0;
 let dayGroups = [];
 
+// Wix changes the iframe width between desktop and mobile layouts.  Use the
+// iframe width as the primary breakpoint instead of relying only on hover
+// capability (Wix mobile preview still runs inside a desktop browser).
+const mobileWidthQuery = window.matchMedia("(max-width: 700px)");
+mobileWidthQuery.addEventListener("change", () => {
+    if (dayGroups.length === 0)
+        return;
+
+    // Desktop and mobile can have different page counts. Start at the first
+    // page when crossing the breakpoint so pagination always remains valid.
+    currentPage = 0;
+    renderSchedule();
+});
+
 export function renderSchedulePage(items) {
     currentPage = 0;
 
@@ -373,7 +387,7 @@ function createLocationLink(item) {
 }
 
 function isMobileLayout() {
-    return window.matchMedia("(hover: none)").matches;
+    return mobileWidthQuery.matches || window.matchMedia("(hover: none)").matches;
 }
 
 function buildPages(dayGroups) {
