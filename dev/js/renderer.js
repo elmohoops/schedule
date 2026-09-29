@@ -142,21 +142,45 @@ function groupItemsByDay(items) {
     return dayGroups;
 }
 
-function bindPaginationAction(button, action) {
-    // iOS Safari can occasionally consume a synthesized click after the
-    // pagination DOM is replaced. Handle the native touch end directly, and
-    // prevent the follow-up compatibility click from firing a second action.
-    button.addEventListener("touchend", (event) => {
-        if (button.disabled)
-            return;
+// Pagination buttons are rebuilt every time the page changes. Keep the event
+// handlers on the persistent #schedule container instead of binding handlers
+// to each temporary button. Pointer events give touch devices one native
+// activation path without relying on Safari's synthesized click behavior.
+const paginationActions = {
+    first: firstPage,
+    previous: previousPage,
+    next: nextPage,
+    last: lastPage
+};
 
-        event.preventDefault();
+const scheduleContainer = document.getElementById("schedule");
+
+scheduleContainer.addEventListener("pointerup", (event) => {
+    const button = event.target.closest("button[data-pagination-action]");
+    if (!button || !scheduleContainer.contains(button) || button.disabled)
+        return;
+
+    event.preventDefault();
+    const action = paginationActions[button.dataset.paginationAction];
+    if (action)
         action();
-    }, { passive: false });
+});
 
-    // Mouse/trackpad/keyboard activation continues to use the normal click.
-    button.addEventListener("click", action);
-}
+// Preserve keyboard accessibility. Keyboard activation generates a click with
+// detail === 0; pointer-generated clicks are ignored because pointerup already
+// handled them.
+scheduleContainer.addEventListener("click", (event) => {
+    if (event.detail !== 0)
+        return;
+
+    const button = event.target.closest("button[data-pagination-action]");
+    if (!button || !scheduleContainer.contains(button) || button.disabled)
+        return;
+
+    const action = paginationActions[button.dataset.paginationAction];
+    if (action)
+        action();
+});
 
 function renderPagination(container, dayGroups) {
     // getCurrentPage() already built the authoritative page set. Rebuild only
@@ -180,12 +204,12 @@ function renderPagination(container, dayGroups) {
     first.textContent = "«";
     first.setAttribute("aria-label", "First page");
     first.title = "First page";
-    bindPaginationAction(first, firstPage);
+    first.dataset.paginationAction = "first";
     first.disabled = currentPage === 0;
 
     const previous = document.createElement("button");
     previous.textContent = "Prev";
-    bindPaginationAction(previous, previousPage);
+    previous.dataset.paginationAction = "previous";
     previous.disabled = currentPage === 0;
 
     const label = document.createElement("span");
@@ -194,14 +218,14 @@ function renderPagination(container, dayGroups) {
 
     const next = document.createElement("button");
     next.textContent = "Next";
-    bindPaginationAction(next, nextPage);
+    next.dataset.paginationAction = "next";
     next.disabled = currentPage === totalPages - 1;
 
     const last = document.createElement("button");
     last.textContent = "»";
     last.setAttribute("aria-label", "Last page");
     last.title = "Last page";
-    bindPaginationAction(last, lastPage);
+    last.dataset.paginationAction = "last";
     last.disabled = currentPage === totalPages - 1;
 
     content.appendChild(first);
