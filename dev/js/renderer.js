@@ -26,7 +26,15 @@ function renderSchedule() {
 
     renderSubscribeButtons(container);
     const page = getCurrentPage(dayGroups);
-    renderScheduleItems(container, page);
+
+    // Keep each date and its events together as one layout unit.
+    // Desktop CSS can place multiple date groups on the same row;
+    // mobile keeps the existing one-date-per-row layout.
+    const dayGroupsContainer = document.createElement("div");
+    dayGroupsContainer.className = "schedule-day-groups";
+    container.appendChild(dayGroupsContainer);
+
+    renderScheduleItems(dayGroupsContainer, page);
     renderPagination(container, dayGroups);
 
     document.getElementById("schedule").scrollIntoView({
