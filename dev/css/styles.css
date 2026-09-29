@@ -260,3 +260,14 @@ body {
     }
 }
 
+
+/* Desktop pagination packs date groups into a 3-column x 3-row page. */
+@media (hover: hover) {
+    .schedule-day-many-events {
+        width: 100%;
+    }
+
+    .schedule-day-many-events .schedule-day-games {
+        flex-wrap: wrap;
+    }
+}

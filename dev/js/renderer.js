@@ -1,6 +1,8 @@
 import { CONFIG } from "./config.js";
 
 const DAYS_PER_PAGE = CONFIG.pagination.dateGroupsPerPage;
+const DESKTOP_COLUMNS = 3;
+const DESKTOP_ROWS_PER_PAGE = 3;
 let currentPage = 0;
 let totalPages = 0;
 let dayGroups = [];
@@ -126,7 +128,7 @@ function groupItemsByDay(items) {
 }
 
 function renderPagination(container, dayGroups) {
-    totalPages = Math.ceil(dayGroups.length / DAYS_PER_PAGE);
+    totalPages = buildPages(dayGroups).length;
 
     if (totalPages <= 1)
         return;
@@ -181,6 +183,10 @@ function renderScheduleItems(container, dayGroups) {
 
     for (const dayGroup of dayGroups) {
         const daySection = createDaySection(dayGroup);
+        daySection.classList.add(`schedule-day-${Math.min(dayGroup.items.length, 3)}-events`);
+        if (dayGroup.items.length > 3) {
+            daySection.classList.add("schedule-day-many-events");
+        }
 
         const dayGamesContainer = document.createElement("div");
         dayGamesContainer.className = "schedule-day-games";
@@ -366,10 +372,100 @@ function createLocationLink(item) {
     return location;
 }
 
+function isMobileLayout() {
+    return window.matchMedia("(hover: none)").matches;
+}
+
+function buildPages(dayGroups) {
+    if (isMobileLayout()) {
+        const pages = [];
+
+        for (let i = 0; i < dayGroups.length; i += DAYS_PER_PAGE) {
+            pages.push(dayGroups.slice(i, i + DAYS_PER_PAGE));
+        }
+
+        return pages;
+    }
+
+    const pages = [];
+    let page = [];
+    let rowsUsed = 0;
+    let slotsUsedInRow = 0;
+
+    for (const dayGroup of dayGroups) {
+        const eventCount = Math.max(1, dayGroup.items.length);
+
+        // A date with more than one full row of events owns complete rows.
+        if (eventCount > DESKTOP_COLUMNS) {
+            if (slotsUsedInRow > 0) {
+                rowsUsed++;
+                slotsUsedInRow = 0;
+            }
+
+            const rowsNeeded = Math.ceil(eventCount / DESKTOP_COLUMNS);
+
+            if (page.length > 0 && rowsUsed + rowsNeeded > DESKTOP_ROWS_PER_PAGE) {
+                pages.push(page);
+                page = [];
+                rowsUsed = 0;
+            }
+
+            page.push(dayGroup);
+            rowsUsed += rowsNeeded;
+
+            if (rowsUsed >= DESKTOP_ROWS_PER_PAGE) {
+                pages.push(page);
+                page = [];
+                rowsUsed = 0;
+            }
+
+            continue;
+        }
+
+        const slotsNeeded = eventCount;
+
+        if (slotsUsedInRow + slotsNeeded > DESKTOP_COLUMNS) {
+            rowsUsed++;
+            slotsUsedInRow = 0;
+        }
+
+        if (rowsUsed >= DESKTOP_ROWS_PER_PAGE) {
+            pages.push(page);
+            page = [];
+            rowsUsed = 0;
+            slotsUsedInRow = 0;
+        }
+
+        page.push(dayGroup);
+        slotsUsedInRow += slotsNeeded;
+
+        if (slotsUsedInRow === DESKTOP_COLUMNS) {
+            rowsUsed++;
+            slotsUsedInRow = 0;
+
+            if (rowsUsed >= DESKTOP_ROWS_PER_PAGE) {
+                pages.push(page);
+                page = [];
+                rowsUsed = 0;
+            }
+        }
+    }
+
+    if (page.length > 0) {
+        pages.push(page);
+    }
+
+    return pages;
+}
+
 function getCurrentPage(dayGroups) {
-    const start = currentPage * DAYS_PER_PAGE;
-    const end = start + DAYS_PER_PAGE;
-    return dayGroups.slice(start, end);
+    const pages = buildPages(dayGroups);
+
+    if (currentPage >= pages.length) {
+        currentPage = Math.max(0, pages.length - 1);
+    }
+
+    return pages[currentPage] || [];
 }
 
 function firstPage() {
