@@ -49,11 +49,6 @@ body {
         box-shadow .15s ease;
 }
 
-.schedule-subscribe-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,.12);
-    border-color: #9E1B32;
-}
 
 /*
  * Desktop date-group layout
@@ -69,6 +64,9 @@ body {
     flex-wrap: wrap;
     align-items: flex-start;
     gap: 20px;
+    width: min(100%, 832px);
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .schedule-day {
@@ -104,11 +102,6 @@ body {
     transition: transform .15s ease, box-shadow .15s ease;
 }
 
-.schedule-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,.12);
-    border-color: #9E1B32;
-}
 
 .schedule-card::after {
     content: "📅";
@@ -121,9 +114,6 @@ body {
     pointer-events: none;
 }
 
-.schedule-card:hover::after {
-    opacity: 1;
-}
 
 .schedule-stripe {
     height: 12px;
@@ -165,9 +155,6 @@ body {
     display: inline-block;
 }
 
-.schedule-location:hover {
-    color: #0000FF;
-}
 
 .schedule-description {
     margin-top: 8px;
@@ -185,10 +172,6 @@ body {
     margin: 20px auto 36px;
 }
 
-.schedule-pagination:hover {
-    box-shadow: 0 4px 10px rgba(0,0,0,.12);
-    border-color: #9E1B32;
-}
 
 .schedule-pagination-content {
     display: flex;
@@ -208,9 +191,6 @@ body {
     transition: color .15s ease;
 }
 
-.schedule-pagination button:hover {
-    color: #9E1B32;
-}
 
 .schedule-pagination button:disabled {
     color: #cfcfcf;
@@ -225,6 +205,40 @@ body {
     color: #444;
 }
 
+
+/* Hover effects are desktop-only. On touch devices, persistent simulated
+ * hover can consume the first tap before the click action fires. */
+@media (hover: hover) and (pointer: fine) {
+    .schedule-subscribe-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,.12);
+        border-color: #9E1B32;
+    }
+
+    .schedule-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,.12);
+        border-color: #9E1B32;
+    }
+
+    .schedule-card:hover::after {
+        opacity: 1;
+    }
+
+    .schedule-location:hover {
+        color: #0000FF;
+    }
+
+    .schedule-pagination:hover {
+        box-shadow: 0 4px 10px rgba(0,0,0,.12);
+        border-color: #9E1B32;
+    }
+
+    .schedule-pagination button:hover {
+        color: #9E1B32;
+    }
+}
+
 @media (max-width: 700px), (hover: none) {
     .schedule-subscribe-buttons {
         flex-direction: column;
@@ -234,6 +248,9 @@ body {
     /* Preserve the existing mobile schedule layout. */
     .schedule-day-groups {
         display: block;
+        width: auto;
+        margin-left: 0;
+        margin-right: 0;
     }
 
     .schedule-day {
