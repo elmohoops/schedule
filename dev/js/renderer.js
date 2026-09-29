@@ -6,6 +6,7 @@ const DESKTOP_ROWS_PER_PAGE = 3;
 let currentPage = 0;
 let totalPages = 0;
 let dayGroups = [];
+let currentPages = [];
 
 // Wix changes the iframe width between desktop and mobile layouts.  Use the
 // iframe width as the primary breakpoint instead of relying only on hover
@@ -142,7 +143,12 @@ function groupItemsByDay(items) {
 }
 
 function renderPagination(container, dayGroups) {
-    totalPages = buildPages(dayGroups).length;
+    // getCurrentPage() already built the authoritative page set. Rebuild only
+    // as a defensive fallback if pagination is rendered independently.
+    if (currentPages.length === 0) {
+        currentPages = buildPages(dayGroups);
+        totalPages = currentPages.length;
+    }
 
     if (totalPages <= 1)
         return;
@@ -387,7 +393,9 @@ function createLocationLink(item) {
 }
 
 function isMobileLayout() {
-    return mobileWidthQuery.matches || window.matchMedia("(hover: none)").matches;
+    // Pagination is based on the actual iframe/page width. This is stable on
+    // real phones and in the fixed-width Wix desktop embed.
+    return mobileWidthQuery.matches;
 }
 
 function buildPages(dayGroups) {
@@ -473,13 +481,16 @@ function buildPages(dayGroups) {
 }
 
 function getCurrentPage(dayGroups) {
-    const pages = buildPages(dayGroups);
+    // Keep one authoritative page set for the current layout. Navigation
+    // buttons use this same array instead of rebuilding pages independently.
+    currentPages = buildPages(dayGroups);
+    totalPages = currentPages.length;
 
-    if (currentPage >= pages.length) {
-        currentPage = Math.max(0, pages.length - 1);
+    if (currentPage >= totalPages) {
+        currentPage = Math.max(0, totalPages - 1);
     }
 
-    return pages[currentPage] || [];
+    return currentPages[currentPage] || [];
 }
 
 function firstPage() {
@@ -497,15 +508,15 @@ function previousPage() {
 }
 
 function nextPage() {
-    if (currentPage < totalPages - 1) {
+    if (currentPage < currentPages.length - 1) {
         currentPage++;
         renderSchedule();
     }
 }
 
 function lastPage() {
-    if (currentPage < totalPages - 1) {
-        currentPage = totalPages - 1;
+    if (currentPage < currentPages.length - 1) {
+        currentPage = currentPages.length - 1;
         renderSchedule();
     }
 }
